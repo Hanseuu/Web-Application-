@@ -22,6 +22,14 @@ npm start                # http://localhost:3000
 
 Database dan data demo dibuat otomatis saat pertama kali dijalankan.
 
+## Menayangkan online (gratis)
+
+Repositori ini menyertakan [`render.yaml`](render.yaml), jadi cukup:
+**Render Dashboard → New → Blueprint → pilih repositori ini → Apply.**
+
+Panduan lengkap beserta batasan paket Free (layanan tidur setelah 15 menit dan data
+ter-reset berkala) ada di **[DEPLOY.md](DEPLOY.md)**.
+
 ### Akun login
 
 Halaman pertama adalah login, dan peran **wajib dipilih** di sana. Memilih peran yang tidak
