@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Masuk — Komen (Kos Manajemen)</title>
+  <meta name="description" content="Komen (Kos Manajemen) — aplikasi pengelolaan kos untuk pemilik dan penyewa." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="login-body">
+
+  <main class="login-shell">
+    <!-- Panel kiri: identitas aplikasi -->
+    <section class="login-hero">
+      <div class="login-hero__inner">
+        <div class="brand brand--lg">
+          <span class="brand__mark">K</span>
+          <span class="brand__text">
+            <strong>Komen</strong>
+            <small>Kos Manajemen</small>
+          </span>
+        </div>
+
+        <h1 class="login-hero__title">Satu aplikasi untuk<br />mengelola kos Anda.</h1>
+        <p class="login-hero__sub" id="kostInfo">Memuat informasi kos…</p>
+
+        <ul class="login-hero__list">
+          <li><span>👥</span> Daftar penyewa &amp; nomor kamar</li>
+          <li><span>🗺️</span> Denah &amp; fasilitas kos</li>
+          <li><span>📢</span> Pengumuman terjadwal per lantai</li>
+          <li><span>🧰</span> Pusat komplain dengan foto</li>
+          <li><span>💳</span> Tagihan, QRIS &amp; Virtual Account</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Panel kanan: form login -->
+    <section class="login-panel">
+      <div class="login-card">
+        <header class="login-card__head">
+          <h2>Masuk ke akun Anda</h2>
+          <p>Pilih peran Anda terlebih dahulu, lalu masukkan email dan password.</p>
+        </header>
+
+        <!-- Pemilihan peran: owner / tenant -->
+        <div class="role-picker" id="rolePicker" role="radiogroup" aria-label="Pilih peran">
+          <button type="button" class="role-option is-active" data-role="owner" role="radio" aria-checked="true">
+            <span class="role-option__icon">🔑</span>
+            <span class="role-option__body">
+              <strong>Pemilik Kos</strong>
+              <small>Kelola penyewa, tagihan &amp; komplain</small>
+            </span>
+          </button>
+          <button type="button" class="role-option" data-role="tenant" role="radio" aria-checked="false">
+            <span class="role-option__icon">🛏️</span>
+            <span class="role-option__body">
+              <strong>Penyewa</strong>
+              <small>Bayar tagihan, lapor &amp; lihat info</small>
+            </span>
+          </button>
+        </div>
+
+        <form id="loginForm" class="form" novalidate>
+          <input type="hidden" name="role" id="roleField" value="owner" />
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" autocomplete="username"
+                   placeholder="nama@email.com" required />
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="field__with-action">
+              <input type="password" id="password" name="password" autocomplete="current-password"
+                     placeholder="••••••••" required />
+              <button type="button" class="btn-ghost btn-ghost--sm" id="togglePassword"
+                      aria-label="Tampilkan password">👁</button>
+            </div>
+          </div>
+
+          <p class="alert alert--error" id="loginError" hidden></p>
+
+          <button type="submit" class="btn btn--primary btn--block" id="loginSubmit">
+            Masuk sebagai <span id="roleLabel">Pemilik Kos</span>
+          </button>
+        </form>
+
+        <!-- Akun demo untuk mencoba aplikasi -->
+        <div class="demo-box">
+          <p class="demo-box__title">Akun demo</p>
+          <div class="demo-box__grid">
+            <button type="button" class="demo-chip" data-demo-role="owner"
+                    data-email="owner@komen.id" data-password="owner123">
+              <strong>Pemilik</strong><span>owner@komen.id</span>
+            </button>
+            <button type="button" class="demo-chip" data-demo-role="tenant"
+                    data-email="penyewa@komen.id" data-password="penyewa123">
+              <strong>Penyewa</strong><span>penyewa@komen.id</span>
+            </button>
+          </div>
+          <p class="demo-box__hint">Klik salah satu untuk mengisi form secara otomatis.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/login.js"></script>
+</body>
+</html>

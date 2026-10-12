@@ -1,0 +1,38 @@
+{
+  "name": "komen-vercel",
+  "version": "1.0.0",
+  "description": "Komen (Kos Manajemen) - aplikasi pengelolaan kos untuk Vercel + Turso",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/seed.js",
+    "reset": "node src/seed.js --reset",
+    "smoke": "node tests/smoke.js",
+    "browser": "node tests/browser.js",
+    "entry": "node tests/vercel-entry.js"
+  },
+  "keywords": [
+    "kos",
+    "manajemen",
+    "boarding-house",
+    "vercel",
+    "turso"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.64.0"
+  }
+}

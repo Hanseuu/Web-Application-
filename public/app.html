@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Komen — Kos Manajemen</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="app-body">
+
+  <!-- ===================== Top bar ===================== -->
+  <header class="topbar">
+    <div class="topbar__left">
+      <button class="btn-icon menu-toggle" id="menuToggle" aria-label="Buka menu">☰</button>
+
+      <a class="brand" href="#/" id="brandLink">
+        <span class="brand__mark">K</span>
+        <span class="brand__text">
+          <strong>Komen</strong>
+          <small>Kos Manajemen</small>
+        </span>
+      </a>
+
+      <!-- Navigasi kiri atas: Home, Chat, Profil -->
+      <nav class="mainnav" id="mainNav" aria-label="Navigasi utama">
+        <a class="mainnav__link" data-nav="home" href="#/"><span>🏠</span><span class="label">Home</span></a>
+        <a class="mainnav__link" data-nav="chat" href="#/chat">
+          <span>💬</span><span class="label">Chat</span>
+          <span class="pill-count" id="chatBadge" hidden>0</span>
+        </a>
+        <a class="mainnav__link" data-nav="profil" href="#/profil"><span>👤</span><span class="label">Profil</span></a>
+      </nav>
+    </div>
+
+    <div class="topbar__right">
+      <button class="btn-icon" id="notifToggle" aria-label="Notifikasi" title="Notifikasi">
+        🔔<span class="pill-count" id="notifBadge" hidden style="position:absolute;top:-5px;right:-5px">0</span>
+      </button>
+
+      <div class="topbar__user">
+        <span class="avatar" id="userAvatar" style="background:#2563eb">?</span>
+        <span class="topbar__user-text">
+          <strong id="userName">Memuat…</strong>
+          <small id="userRole">—</small>
+        </span>
+      </div>
+
+      <button class="btn-icon" id="logoutBtn" aria-label="Keluar" title="Keluar">⎋</button>
+    </div>
+  </header>
+
+  <!-- ===================== Panel notifikasi ===================== -->
+  <aside class="notif-panel" id="notifPanel" aria-label="Daftar notifikasi">
+    <div class="notif-panel__head">
+      <strong>Notifikasi</strong>
+      <div class="row" style="gap:6px">
+        <button class="btn-ghost btn-ghost--sm" id="notifReadAll">Tandai dibaca</button>
+        <button class="btn-ghost btn-ghost--sm" id="notifClose" aria-label="Tutup">×</button>
+      </div>
+    </div>
+    <div class="notif-list" id="notifList"></div>
+  </aside>
+
+  <!-- ===================== Layout ===================== -->
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <p class="sidebar__title" id="sidebarTitle">Menu</p>
+      <nav class="sidebar__nav" id="sidebarNav" aria-label="Menu fitur"></nav>
+      <div class="sidebar__foot">
+        <p id="sidebarKost">—</p>
+        <p class="muted" style="font-size:.7rem">Komen v1.0</p>
+      </div>
+    </aside>
+
+    <main class="content" id="view" tabindex="-1">
+      <div class="empty">
+        <span class="spinner spinner--dark" style="width:28px;height:28px;border-width:3px"></span>
+        <strong style="margin-top:12px">Memuat aplikasi…</strong>
+      </div>
+    </main>
+  </div>
+
+  <div class="backdrop" id="backdrop"></div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

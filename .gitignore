@@ -1,0 +1,20 @@
+node_modules/
+.env
+.env*.local
+
+# Database SQLite lokal (dibuat otomatis; di Vercel memakai Turso)
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Artefak Vercel
+.vercel
+
+# Hasil screenshot pengujian UI
+.kiro/artifacts/
+
+# Log & berkas sistem
+*.log
+npm-debug.log*
+.DS_Store
