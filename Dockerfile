@@ -22,7 +22,13 @@
 FROM node:22-slim
 
 ENV NODE_ENV=production \
-    PORT=3000
+    PORT=3000 \
+    # Batas heap dipasang agar aman di container kecil (mis. paket gratis
+    # Back4app: 256 MB). Tanpa ini Node memakai batas bawaan ~4 GB sehingga
+    # saat memori menipis container lebih mungkin di-OOM-kill daripada
+    # memaksa garbage collection. Pemakaian normal aplikasi ~110-125 MB.
+    # Pada container yang lebih besar, timpa saja variabel ini.
+    NODE_OPTIONS=--max-old-space-size=160
 
 WORKDIR /app
 
