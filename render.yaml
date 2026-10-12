@@ -1,0 +1,81 @@
+# ---------------------------------------------------------------------------
+# Blueprint Render untuk Komen (Kos Manajemen)
+#
+# Cara pakai:
+#   Render Dashboard → New → Blueprint → pilih repositori ini → Apply
+#
+# Catatan penting paket Free:
+#   • Layanan tidur setelah 15 menit tanpa kunjungan. Akses pertama
+#     sesudahnya butuh ±1 menit untuk bangun kembali.
+#   • Sistem berkas bersifat *ephemeral*: database SQLite dan foto yang
+#     diunggah hilang setiap kali layanan deploy, restart, atau tidur.
+#     Aplikasi otomatis membangun ulang database beserta data demo,
+#     sehingga situs tetap berjalan normal setelah reset.
+#   • Paket Free tidak dapat memakai persistent disk. Untuk data permanen,
+#     naikkan ke paket berbayar, pasang disk, lalu arahkan DB_PATH dan
+#     UPLOAD_DIR ke folder disk tersebut (lihat DEPLOY.md).
+#
+# Dokumentasi: https://render.com/docs/blueprint-spec
+# ---------------------------------------------------------------------------
+
+services:
+  - type: web
+    name: komen
+    runtime: node
+    plan: free
+    region: singapore                 # paling dekat dari Indonesia
+    buildCommand: npm ci --omit=dev   # dependensi pengujian tidak perlu di produksi
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit         # deploy ulang tiap ada commit baru
+
+    # "branch" sengaja tidak diisi: Render memakai branch tempat file
+    # render.yaml ini berada, sehingga blueprint tetap benar baik saat
+    # dijalankan dari branch fitur maupun setelah di-merge ke main.
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Versi Node dipaku agar better-sqlite3 memakai binary siap pakai
+      # (tanpa kompilasi saat build).
+      - key: NODE_VERSION
+        value: "22"
+
+      # --- Identitas kos (ubah sesuai kos Anda di dashboard Render) ---
+      - key: KOST_NAME
+        value: Kos Melati Residence
+      - key: KOST_ADDRESS
+        value: Jl. Melati No. 12, Yogyakarta
+      # Koordinat dipakai untuk tautan "cari di sekitar" pada Google Maps.
+      - key: KOST_LAT
+        value: "-7.782900"
+      - key: KOST_LNG
+        value: "110.367000"
+
+      - key: SESSION_TTL_DAYS
+        value: "7"
+
+      # --- WhatsApp ---
+      # mock  = simulasi; pesan dicatat di menu Keuangan → Log WhatsApp,
+      #         tidak dikirim keluar. Aman untuk demo.
+      # Untuk mengirim sungguhan: ubah nilai ini ke "fonnte" atau "meta",
+      # lalu tambahkan WA_TOKEN (dan WA_PHONE_ID untuk meta) sebagai
+      # environment variable di dashboard Render.
+      - key: WA_PROVIDER
+        value: mock
+
+      # --- Pembayaran (QRIS & Virtual Account) ---
+      # mock = QRIS/VA dibuat lokal, hasil transaksi dicoba lewat tombol
+      #        simulasi "Berhasil/Gagal" di halaman Tagihan Saya.
+      - key: PAYMENT_PROVIDER
+        value: mock
+      - key: PAYMENT_EXPIRY_MINUTES
+        value: "60"
+      - key: PAYMENT_MERCHANT_NAME
+        value: KOS MELATI RESIDENCE
+      - key: PAYMENT_MERCHANT_CITY
+        value: YOGYAKARTA
+      # Rahasia webhook dibuat acak oleh Render, tidak ikut tersimpan di Git.
+      - key: PAYMENT_WEBHOOK_SECRET
+        generateValue: true
