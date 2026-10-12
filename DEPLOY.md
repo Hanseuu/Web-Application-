@@ -76,29 +76,72 @@ maupun domain**.
 
 Back4app menyatakan paket container gratisnya dapat dipakai
 [**tanpa kartu kredit**](https://www.back4app.com/pricing/container-as-a-service).
-Aplikasi dibangun dari `Dockerfile` yang sudah tersedia di repositori ini.
+Aplikasi dibangun dari [`Dockerfile`](Dockerfile) yang sudah tersedia di repositori ini.
 
 ### Langkah
 
-1. Daftar di [back4app.com](https://www.back4app.com) (bisa lewat akun GitHub).
-2. Pilih **Containers** → **Deploy a new App** → hubungkan GitHub → pilih repositori
-   `Web-Application-`.
-3. Back4app menemukan `Dockerfile` di akar repositori secara otomatis.
-   Biarkan pengaturan bawaan — aplikasi membaca variabel `PORT` dari platform.
-4. Klik **Deploy**. Build memakan waktu beberapa menit, lalu aplikasi hidup di
-   alamat `https://<nama-app>.b4a.run`.
+1. Buka [back4app.com](https://www.back4app.com) → **Sign up**.
+   Paling praktis memakai tombol **Sign up with GitHub**, sehingga izin akses
+   repositori langsung terpasang.
 
-Variabel lingkungan bersifat opsional; semua punya nilai bawaan. Untuk menyesuaikan
-nama kos dan lainnya, isi di menu **Environment Variables** (lihat daftar di bagian
-[Pengaturan](#pengaturan)).
+2. Di dashboard, klik **Build new app** → pilih **Containers as a Service**.
+
+3. Klik **Import from GitHub** / **Connect GitHub**, lalu beri izin Back4app mengakses
+   repositori. Karena repositori ini **publik**, cukup pilih `Web-Application-`.
+
+4. Isi konfigurasi deploy:
+
+   | Kolom | Nilai |
+   |---|---|
+   | Repository | `Hanseuu/Web-Application-` |
+   | Branch | `main` |
+   | Root directory | *(biarkan kosong — `Dockerfile` ada di akar)* |
+   | Dockerfile path | `Dockerfile` *(biasanya terdeteksi otomatis)* |
+   | Plan | **Free** |
+
+   Environment variable **tidak wajib diisi** — semuanya sudah punya nilai bawaan.
+
+5. Klik **Deploy**. Build pertama berlangsung beberapa menit; statusnya dapat dipantau
+   di tab **Logs**.
+
+6. Setelah status menjadi *ready*, aplikasi hidup di alamat seperti:
+
+   ```
+   https://nama-app-anda.b4a.run
+   ```
+
+   Buka alamat itu dan login memakai akun demo di atas.
+
+### Mengapa `Dockerfile` ini sudah sesuai
+
+Menurut dokumentasi Back4app, aplikasi harus
+[mendengarkan port dari variabel `PORT`](https://www.back4app.com/docs-containers/run-an-express-container-app)
+dan port tersebut harus
+[di-`EXPOSE` pada Dockerfile](https://www.back4app.com/docs-containers/troubleshooting).
+Keduanya sudah dipenuhi: aplikasi membaca `process.env.PORT` (lihat `src/config.js`)
+dan `Dockerfile` berisi `ENV PORT=3000` beserta `EXPOSE 3000`. Bila Back4app
+menyuntikkan nilai `PORT` yang berbeda, aplikasi otomatis mengikutinya.
+
+### Menyesuaikan pengaturan (opsional)
+
+Tambahkan environment variable di pengaturan aplikasi Back4app bila ingin mengubah
+identitas kos atau mengaktifkan integrasi — misalnya:
+
+```
+KOST_NAME=Kos Hanseu Residence
+KOST_ADDRESS=Jl. Contoh No. 1, Yogyakarta
+```
+
+Daftar lengkapnya ada di bagian [Pengaturan](#pengaturan).
 
 ### Yang perlu diketahui
 
-- Paket gratis **menghentikan container** setelah periode tertentu, jadi kunjungan
-  pertama setelah jeda perlu waktu untuk menyalakannya kembali.
-- Penyimpanan tidak permanen, sehingga database dan foto unggahan **ter-reset** saat
-  container dibangun ulang. Aplikasi otomatis menyemai ulang data demo, jadi situs tetap
-  berfungsi normal.
+- Paket gratis **menghentikan container** setelah periode tidak aktif, sehingga
+  kunjungan pertama sesudahnya perlu waktu untuk menyalakannya kembali.
+- Penyimpanan container **tidak permanen**: database SQLite dan foto unggahan ter-reset
+  ketika container dibangun ulang. Aplikasi otomatis menyemai ulang data demo, jadi
+  situs tetap berfungsi normal — hanya kembali ke kondisi awal.
+- Setiap commit baru ke `main` memicu build ulang.
 
 ---
 
