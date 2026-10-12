@@ -24,11 +24,20 @@ Database dan data demo dibuat otomatis saat pertama kali dijalankan.
 
 ## Menayangkan online (gratis)
 
-Repositori ini menyertakan [`render.yaml`](render.yaml), jadi cukup:
-**Render Dashboard → New → Blueprint → pilih repositori ini → Apply.**
+Cara tercepat mendapat URL publik **tanpa kartu kredit dan tanpa daftar akun** —
+jalankan aplikasi, lalu buka terminal kedua:
 
-Panduan lengkap beserta batasan paket Free (layanan tidur setelah 15 menit dan data
-ter-reset berkala) ada di **[DEPLOY.md](DEPLOY.md)**.
+```bash
+cloudflared tunnel --url http://localhost:3000
+```
+
+Alamat `https://xxx.trycloudflare.com` yang muncul bisa langsung dibagikan.
+
+Pilihan lain: **Back4app Containers** (gratis tanpa kartu, memakai
+[`Dockerfile`](Dockerfile)) atau **Render** (sekali klik lewat
+[`render.yaml`](render.yaml)).
+
+Perbandingan lengkap beserta batasannya ada di **[DEPLOY.md](DEPLOY.md)**.
 
 ### Akun login
 
