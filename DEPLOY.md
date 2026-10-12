@@ -3,12 +3,16 @@
 Beberapa cara menjalankan **Komen (Kos Manajemen)** agar bisa dibuka orang lain,
 termasuk **tanpa kartu kredit**.
 
-| Cara | Kartu kredit | Link permanen | Data bertahan | Cocok untuk |
+| Cara | Kartu kredit | Berapa lama URL hidup | Data bertahan | Cocok untuk |
 |---|---|---|---|---|
-| **A. Cloudflare Tunnel** | ❌ tidak perlu | ❌ berubah tiap dijalankan | ✅ ya | Demo, presentasi, uji coba bersama |
-| **B. Back4app Containers** | ❌ tidak perlu | ✅ tetap | ❌ ter-reset | Link yang bisa dibagikan kapan saja |
-| **C. Render** | ⚠️ sering diminta untuk verifikasi | ✅ tetap | ❌ ter-reset | Blueprint sekali klik |
-| **D. VPS / Oracle Always Free** | ✅ perlu (verifikasi) | ✅ tetap | ✅ ya | Dipakai kos sungguhan |
+| **A. Cloudflare Tunnel** | ❌ tidak perlu | Selama proses dijalankan (jam/hari) | ✅ ya | Demo, presentasi, uji coba bersama |
+| **B. Back4app Containers** | ❌ tidak perlu | ⏱️ **60 menit per deploy**, lalu dihapus | ❌ ter-reset | Pratinjau singkat / uji platform |
+| **C. Render** | ⚠️ sering diminta untuk verifikasi | Tidak terbatas (tidur saat sepi) | ❌ ter-reset | Link tetap sekali klik |
+| **D. VPS / Oracle Always Free** | ✅ perlu (verifikasi) | Tidak terbatas, selalu aktif | ✅ ya | Dipakai kos sungguhan |
+
+> **Penting:** paket gratis Back4app **bukan** hosting permanen — URL-nya sementara dan
+> hanya hidup 60 menit per deploy (lihat bagian B). Untuk demo yang bertahan lama tanpa
+> kartu kredit, pakai **cara A**.
 
 Akun demo untuk semua cara di bawah:
 
@@ -134,14 +138,40 @@ KOST_ADDRESS=Jl. Contoh No. 1, Yogyakarta
 
 Daftar lengkapnya ada di bagian [Pengaturan](#pengaturan).
 
+### ⏱️ Batas 60 menit pada paket gratis — baca sebelum memakai
+
+Paket gratis Back4app adalah **pratinjau**, bukan hosting permanen. Menurut
+[pengukuran tim Back4app sendiri](https://www.back4app.com/blog/run-a-bot-webhook-or-cron-24-7-without-a-vps)
+(diuji 15–16 September 2026):
+
+- Dashboard menampilkan kartu **"Temporary URL Active — URL is temporary and will be
+  live for 60 minutes"** begitu aplikasi hidup.
+- Tepat **60 menit setelah deploy dimulai**, container **dihapus** (bukan ditidurkan):
+  log menunjukkan `COOLING DOWN… → FINISHING CONTAINER… → DEPLOYMENT DESTROYED`.
+  Setelah itu URL membalas `404`.
+- **Waktu build ikut terhitung.** Build 4 menit menyisakan 56 menit masa hidup.
+- **Deploy ulang memulai hitungan 60 menit yang baru** — jadi demo bisa dinyalakan lagi
+  kapan pun, tetapi dengan URL baru.
+- Halaman harga Back4app sendiri menyebut paket Free *"ideal for testing and learning
+  about the platform"*.
+
+Artinya: cocok untuk **menunjukkan aplikasi selama kurang dari satu jam**. Untuk demo
+yang bertahan lebih lama tanpa biaya, pakai **[cara A — Cloudflare Tunnel](#a-cloudflare-tunnel--tanpa-kartu-tanpa-daftar-akun)**.
+Untuk link permanen yang selalu hidup di Back4app, paket **Shared $5/bulan**
+(0.5 CPU, 512 MB) tidak memiliki batas tersebut.
+
 ### Yang perlu diketahui
 
-- Paket gratis **menghentikan container** setelah periode tidak aktif, sehingga
-  kunjungan pertama sesudahnya perlu waktu untuk menyalakannya kembali.
-- Penyimpanan container **tidak permanen**: database SQLite dan foto unggahan ter-reset
-  ketika container dibangun ulang. Aplikasi otomatis menyemai ulang data demo, jadi
-  situs tetap berfungsi normal — hanya kembali ke kondisi awal.
+- **Sumber daya paket gratis:** 0.25 CPU dan **256 MB RAM**. Aplikasi ini terukur
+  memakai **±110 MB saat idle dan ±128 MB setelah 500 permintaan**, jadi masih muat.
+  `Dockerfile` juga membatasi heap Node (`--max-old-space-size=160`) supaya di container
+  kecil Node memaksa garbage collection alih-alih di-OOM-kill.
+- **Penyimpanan tidak permanen:** database SQLite dan foto unggahan ter-reset setiap
+  container dibangun ulang. Aplikasi otomatis menyemai ulang data demo, jadi situs tetap
+  berfungsi normal — hanya kembali ke kondisi awal.
 - Setiap commit baru ke `main` memicu build ulang.
+- Region paket gratis adalah **USA**, sehingga akses dari Indonesia terasa sedikit lebih
+  lambat dibanding Cloudflare Tunnel yang berjalan di komputer sendiri.
 
 ---
 
