@@ -1,0 +1,19 @@
+node_modules/
+.env
+
+# Database SQLite (dibuat otomatis saat server dijalankan)
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Berkas yang diunggah pengguna
+uploads/
+
+# Hasil screenshot pengujian UI
+.kiro/artifacts/
+
+# Log & berkas sistem
+*.log
+npm-debug.log*
+.DS_Store
