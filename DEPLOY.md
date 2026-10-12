@@ -1,151 +1,257 @@
-# Deploy ke Render
+# Panduan Menayangkan Komen
 
-Panduan menayangkan **Komen (Kos Manajemen)** di [Render](https://render.com) memakai
-paket **Free** — tanpa biaya dan tanpa kartu kredit.
+Beberapa cara menjalankan **Komen (Kos Manajemen)** agar bisa dibuka orang lain,
+termasuk **tanpa kartu kredit**.
 
-Repositori ini sudah berisi [`render.yaml`](render.yaml), sehingga Render dapat membuat
-layanan beserta seluruh environment variable secara otomatis.
+| Cara | Kartu kredit | Link permanen | Data bertahan | Cocok untuk |
+|---|---|---|---|---|
+| **A. Cloudflare Tunnel** | ❌ tidak perlu | ❌ berubah tiap dijalankan | ✅ ya | Demo, presentasi, uji coba bersama |
+| **B. Back4app Containers** | ❌ tidak perlu | ✅ tetap | ❌ ter-reset | Link yang bisa dibagikan kapan saja |
+| **C. Render** | ⚠️ sering diminta untuk verifikasi | ✅ tetap | ❌ ter-reset | Blueprint sekali klik |
+| **D. VPS / Oracle Always Free** | ✅ perlu (verifikasi) | ✅ tetap | ✅ ya | Dipakai kos sungguhan |
 
----
-
-## Langkah deploy
-
-1. Buka [Render Dashboard](https://dashboard.render.com) dan login.
-2. Klik **New** → **Blueprint**.
-3. Pilih repositori **`Web-Application-`**.
-   Render otomatis menemukan `render.yaml` di akar repositori.
-4. Periksa ringkasan yang tampil — seharusnya satu layanan web bernama **`komen`**
-   dengan paket **Free**.
-5. Klik **Apply**.
-
-Build pertama memakan waktu sekitar 2–4 menit (`npm ci` + start). Setelah selesai,
-Render memberi URL publik berbentuk:
-
-```
-https://komen-xxxx.onrender.com
-```
-
-Buka URL tersebut dan login dengan akun demo:
+Akun demo untuk semua cara di bawah:
 
 | Peran | Email | Password |
 |---|---|---|
 | Pemilik Kos | `owner@komen.id` | `owner123` |
 | Penyewa | `penyewa@komen.id` | `penyewa123` |
 
-Tidak ada langkah tambahan: database SQLite beserta data demo dibuat otomatis saat
-aplikasi pertama kali berjalan.
-
-> **Tips mencoba dua peran sekaligus:** buka pemilik di jendela biasa dan penyewa di
-> jendela **Incognito/Private**, supaya kedua sesi login tidak saling menimpa.
+> **Tips:** buka pemilik di jendela biasa dan penyewa di jendela **Incognito**, supaya
+> kedua sesi login tidak saling menimpa.
 
 ---
 
-## Yang perlu diketahui tentang paket Free
+## A. Cloudflare Tunnel — tanpa kartu, tanpa daftar akun
 
-Semuanya berasal dari [dokumentasi resmi Render](https://render.com/docs/free) dan
-sudah diperhitungkan dalam konfigurasi ini.
+Cara tercepat mendapat **URL HTTPS publik** dari komputer sendiri. Menurut
+[dokumentasi Cloudflare](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/do-more-with-tunnels/trycloudflare/),
+Quick Tunnel membuat alamat `trycloudflare.com` sementara **tanpa perlu akun Cloudflare
+maupun domain**.
 
-### 1. Layanan tidur setelah 15 menit
+### Langkah
 
-Tanpa kunjungan selama 15 menit, layanan dimatikan sementara. Kunjungan berikutnya
-membangunkannya kembali dalam waktu sekitar **satu menit** — pengunjung melihat halaman
-loading dari Render selama proses tersebut.
+1. Pasang `cloudflared` — unduh dari
+   [halaman rilis Cloudflare](https://github.com/cloudflare/cloudflared/releases)
+   (Windows: `cloudflared-windows-amd64.exe`).
 
-Jatah paket Free adalah **750 jam instance per bulan** per workspace, dan waktu tidur
-tidak ikut terhitung. Untuk satu layanan, jatah ini tidak akan habis.
+2. Jalankan aplikasi di satu terminal:
 
-### 2. Data ter-reset secara berkala
+   ```bash
+   npm install
+   npm start                       # http://localhost:3000
+   ```
 
-Sistem berkas Render bersifat *ephemeral*: setiap kali layanan **deploy, restart, atau
-tidur**, seluruh perubahan berkas hilang — termasuk database SQLite dan foto laporan
-kerusakan yang diunggah penyewa. Paket Free **tidak bisa** memakai persistent disk.
+3. Buka terminal **kedua**, lalu jalankan:
 
-Aplikasi ini menanganinya dengan baik: saat database kosong, data demo dibangun ulang
-otomatis, jadi situs tidak pernah rusak — hanya kembali ke kondisi awal.
+   ```bash
+   cloudflared tunnel --url http://localhost:3000
+   ```
 
-Artinya:
+4. `cloudflared` menampilkan URL seperti:
 
-| | Paket Free |
-|---|---|
-| Mendemokan aplikasi | ✅ Sangat cocok |
-| Dipakai kos sungguhan | ❌ Data penyewa akan hilang |
+   ```
+   https://nama-acak-anda.trycloudflare.com
+   ```
 
-### 3. Penjadwalan pengumuman mengikuti waktu aktif
+   Bagikan URL itu — siapa pun bisa membukanya dari ponsel maupun komputer lain.
 
-Tugas berkala (`src/scheduler.js`) hanya berjalan saat layanan hidup. Bila pengumuman
-dijadwalkan pada jam 20.00 sementara layanan sedang tidur, pengumuman tersebut terbit
-saat ada kunjungan berikutnya — bukan tepat pukul 20.00. Jadwal yang terlewat tidak
-hilang, karena scheduler ikut dijalankan sekali setiap kali aplikasi start.
+### Yang perlu diketahui
+
+- URL **berhenti bekerja** saat proses `cloudflared` dihentikan atau komputer dimatikan.
+- Nama host **berubah** setiap kali tunnel dijalankan ulang.
+- Cloudflare tidak menjamin ketersediaan (*no uptime guarantee*), dan setiap Quick Tunnel
+  menampung hingga 200 permintaan bersamaan.
+- Komputer Anda yang melayani permintaan, jadi **semua fitur jalan penuh dan data
+  tersimpan permanen** di database lokal.
+- Siapa pun yang punya URL dapat mengaksesnya. Bila ingin membatasi, tambahkan
+  `--allowed-mail email@anda.com` sehingga pengunjung harus memasukkan PIN sekali pakai
+  yang dikirim ke email tersebut.
+
+**Paling cocok untuk:** menunjukkan aplikasi saat presentasi atau meminta teman mencoba.
 
 ---
 
-## Mengubah pengaturan
+## B. Back4app Containers — tanpa kartu, link tetap
 
-Semua nilai di bawah dapat diubah lewat **Render Dashboard → layanan `komen`
-→ Environment**, tanpa perlu mengubah kode. Layanan otomatis restart setelah disimpan.
+Back4app menyatakan paket container gratisnya dapat dipakai
+[**tanpa kartu kredit**](https://www.back4app.com/pricing/container-as-a-service).
+Aplikasi dibangun dari [`Dockerfile`](Dockerfile) yang sudah tersedia di repositori ini.
+
+### Langkah
+
+1. Buka [back4app.com](https://www.back4app.com) → **Sign up**.
+   Paling praktis memakai tombol **Sign up with GitHub**, sehingga izin akses
+   repositori langsung terpasang.
+
+2. Di dashboard, klik **Build new app** → pilih **Containers as a Service**.
+
+3. Klik **Import from GitHub** / **Connect GitHub**, lalu beri izin Back4app mengakses
+   repositori. Karena repositori ini **publik**, cukup pilih `Web-Application-`.
+
+4. Isi konfigurasi deploy:
+
+   | Kolom | Nilai |
+   |---|---|
+   | Repository | `Hanseuu/Web-Application-` |
+   | Branch | `main` |
+   | Root directory | *(biarkan kosong — `Dockerfile` ada di akar)* |
+   | Dockerfile path | `Dockerfile` *(biasanya terdeteksi otomatis)* |
+   | Plan | **Free** |
+
+   Environment variable **tidak wajib diisi** — semuanya sudah punya nilai bawaan.
+
+5. Klik **Deploy**. Build pertama berlangsung beberapa menit; statusnya dapat dipantau
+   di tab **Logs**.
+
+6. Setelah status menjadi *ready*, aplikasi hidup di alamat seperti:
+
+   ```
+   https://nama-app-anda.b4a.run
+   ```
+
+   Buka alamat itu dan login memakai akun demo di atas.
+
+### Mengapa `Dockerfile` ini sudah sesuai
+
+Menurut dokumentasi Back4app, aplikasi harus
+[mendengarkan port dari variabel `PORT`](https://www.back4app.com/docs-containers/run-an-express-container-app)
+dan port tersebut harus
+[di-`EXPOSE` pada Dockerfile](https://www.back4app.com/docs-containers/troubleshooting).
+Keduanya sudah dipenuhi: aplikasi membaca `process.env.PORT` (lihat `src/config.js`)
+dan `Dockerfile` berisi `ENV PORT=3000` beserta `EXPOSE 3000`. Bila Back4app
+menyuntikkan nilai `PORT` yang berbeda, aplikasi otomatis mengikutinya.
+
+### Menyesuaikan pengaturan (opsional)
+
+Tambahkan environment variable di pengaturan aplikasi Back4app bila ingin mengubah
+identitas kos atau mengaktifkan integrasi — misalnya:
+
+```
+KOST_NAME=Kos Hanseu Residence
+KOST_ADDRESS=Jl. Contoh No. 1, Yogyakarta
+```
+
+Daftar lengkapnya ada di bagian [Pengaturan](#pengaturan).
+
+### Yang perlu diketahui
+
+- Paket gratis **menghentikan container** setelah periode tidak aktif, sehingga
+  kunjungan pertama sesudahnya perlu waktu untuk menyalakannya kembali.
+- Penyimpanan container **tidak permanen**: database SQLite dan foto unggahan ter-reset
+  ketika container dibangun ulang. Aplikasi otomatis menyemai ulang data demo, jadi
+  situs tetap berfungsi normal — hanya kembali ke kondisi awal.
+- Setiap commit baru ke `main` memicu build ulang.
+
+---
+
+## C. Render — Blueprint sekali klik
+
+Repositori ini menyertakan [`render.yaml`](render.yaml), jadi Render dapat membuat
+layanan beserta seluruh environment variable secara otomatis:
+
+**Render Dashboard → New → Blueprint → pilih repositori ini → Apply.**
+
+Build pertama ±2–4 menit, lalu aplikasi hidup di `https://komen-xxxx.onrender.com`.
+
+### Soal kartu kredit
+
+Paket workspace **Hobby** di Render tidak memiliki biaya bulanan dan dibuat otomatis
+saat mendaftar ([dokumentasi Render](https://render.com/docs/teams)). Meski begitu,
+Render dapat meminta metode pembayaran sebagai **verifikasi akun**. Bila Anda tidak
+ingin memasukkan kartu, pakai **cara A atau B** di atas — tidak ada yang hilang, karena
+aplikasinya sama.
+
+### Batasan paket Free
+
+Berdasarkan [dokumentasi Render](https://render.com/docs/free):
+
+1. **Tidur setelah 15 menit** tanpa kunjungan; akses berikutnya perlu ±1 menit untuk
+   bangun. Jatah 750 jam instance per bulan tidak akan habis untuk satu layanan.
+2. **Sistem berkas *ephemeral*** dan paket Free tidak mendukung persistent disk —
+   database SQLite dan foto unggahan hilang setiap deploy/restart/tidur. Aplikasi
+   menyemai ulang data demo otomatis, jadi situs tidak pernah rusak.
+3. **Pengumuman terjadwal** hanya diproses saat layanan hidup. Jadwal yang terlewat ikut
+   diterbitkan saat aplikasi start berikutnya (lihat `src/scheduler.js`).
+
+> Catatan: Render ikut mendeteksi `Dockerfile` bila layanan dibuat secara manual.
+> Dengan alur **Blueprint**, `render.yaml` sudah menetapkan `runtime: node`,
+> jadi tidak ada konflik.
+
+---
+
+## D. VPS atau Oracle Cloud Always Free — untuk pemakaian sungguhan
+
+Bila kos sungguhan akan memakai aplikasi ini, data **tidak boleh** ter-reset. Pilih
+mesin virtual dengan disk permanen:
+
+- [Oracle Cloud Always Free](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm)
+  — gratis selamanya selama akun aktif (kartu kredit hanya untuk verifikasi identitas)
+- VPS berbayar murah (Hostinger, DigitalOcean, Contabo, dsb.)
+
+Cara termudah memakai Docker:
+
+```bash
+git clone https://github.com/Hanseuu/Web-Application-.git
+cd Web-Application-
+docker build -t komen .
+docker run -d --restart unless-stopped -p 80:3000 \
+  -v komen-data:/data \
+  -e DB_PATH=/data/komen.db \
+  -e UPLOAD_DIR=/data/uploads \
+  komen
+```
+
+Volume `komen-data` membuat database dan foto unggahan bertahan melewati restart
+maupun pembaruan image.
+
+Tanpa Docker juga bisa: `npm ci --omit=dev` lalu `npm start` di belakang reverse proxy
+(Nginx/Caddy) memakai process manager seperti `pm2` atau unit `systemd`.
+
+---
+
+## Pengaturan
+
+Semua variabel di bawah bersifat opsional — aplikasi berjalan dengan nilai bawaan.
+Isi lewat dashboard platform atau berkas `.env` (lihat [`.env.example`](.env.example)).
 
 | Variabel | Default | Keterangan |
 |---|---|---|
+| `PORT` | `3000` | Biasanya diisi otomatis oleh platform |
 | `KOST_NAME` | `Kos Melati Residence` | Nama kos di header dan pesan |
 | `KOST_ADDRESS` | `Jl. Melati No. 12, Yogyakarta` | Alamat kos |
 | `KOST_LAT` / `KOST_LNG` | koordinat Yogyakarta | Titik acuan pencarian Google Maps |
 | `SESSION_TTL_DAYS` | `7` | Masa aktif sesi login |
+| `DB_PATH` | `data/komen.db` | Lokasi database SQLite |
+| `UPLOAD_DIR` | `uploads` | Lokasi foto laporan, denah, fasilitas |
 | `WA_PROVIDER` | `mock` | `mock` / `fonnte` / `meta` |
 | `PAYMENT_PROVIDER` | `mock` | `mock` / `custom` |
 | `PAYMENT_MERCHANT_NAME` | `KOS MELATI RESIDENCE` | Nama merchant pada QRIS |
 
 ### Mengaktifkan WhatsApp sungguhan
 
-Secara default `WA_PROVIDER=mock`, artinya pesan **dicatat tetapi tidak dikirim** —
-dapat dilihat pemilik di menu **Keuangan → Log WhatsApp**. Untuk mengirim sungguhan,
-tambahkan di Environment:
+Default `mock` berarti pesan **dicatat tetapi tidak dikirim** — dapat dilihat pemilik di
+menu **Keuangan → Log WhatsApp**. Untuk mengirim sungguhan:
 
-- **Fonnte:** `WA_PROVIDER=fonnte` dan `WA_TOKEN=<token device Anda>`
+- **Fonnte:** `WA_PROVIDER=fonnte` dan `WA_TOKEN=<token device>`
 - **WhatsApp Cloud API:** `WA_PROVIDER=meta`, `WA_TOKEN=<access token>`,
   `WA_PHONE_ID=<phone number id>`
 
-Token sengaja tidak dicantumkan di `render.yaml` agar tidak pernah tersimpan di Git.
+Token sengaja tidak pernah disimpan di repositori.
 
 ### Mengaktifkan payment gateway sungguhan
 
-Default `PAYMENT_PROVIDER=mock` membuat QRIS dan Virtual Account secara lokal, dan
-halaman Tagihan Saya menampilkan tombol **Simulasikan Berhasil/Gagal** untuk menguji
-kedua alur. Untuk gateway nyata, set `PAYMENT_PROVIDER=custom` beserta
-`PAYMENT_API_URL` dan `PAYMENT_API_KEY`, lalu arahkan webhook gateway ke:
+Default `mock` membuat QRIS dan Virtual Account secara lokal, dan halaman Tagihan Saya
+menyediakan tombol **Simulasikan Berhasil/Gagal** untuk menguji kedua alur. Untuk
+gateway nyata: set `PAYMENT_PROVIDER=custom`, `PAYMENT_API_URL`, `PAYMENT_API_KEY`,
+lalu arahkan webhook gateway ke:
 
 ```
-POST https://<domain-anda>.onrender.com/api/webhooks/payment
+POST https://<domain-anda>/api/webhooks/payment
 ```
 
-Render sudah membuat `PAYMENT_WEBHOOK_SECRET` secara acak — nilainya dapat dilihat di
-halaman Environment, dan dipakai gateway untuk menandatangani webhook
-(`x-komen-signature`, HMAC-SHA256 dari raw body).
-
----
-
-## Agar data tidak ter-reset
-
-Dua pilihan, sesuai kebutuhan:
-
-### Pilihan A — Naikkan paket Render + persistent disk
-
-Paket berbayar dapat memasang disk permanen. Setelah disk dipasang
-(misalnya pada `/var/data`), tambahkan environment variable berikut agar database dan
-foto unggahan tersimpan di disk tersebut:
-
-```
-DB_PATH=/var/data/komen.db
-UPLOAD_DIR=/var/data/uploads
-```
-
-Aplikasi sudah mendukung kedua variabel ini, jadi tidak ada perubahan kode.
-
-### Pilihan B — Pindah ke VPS gratis permanen
-
-[Oracle Cloud Always Free](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm)
-menyediakan mesin virtual yang gratis selamanya dengan disk permanen dan selalu aktif
-(tanpa tidur). Karena ini aplikasi Node biasa, caranya cukup `git clone`,
-`npm ci --omit=dev`, lalu jalankan `npm start` di belakang reverse proxy.
+Webhook diverifikasi dengan header `x-komen-signature` berisi HMAC-SHA256 dari raw body
+memakai `PAYMENT_WEBHOOK_SECRET`.
 
 ---
 
@@ -153,11 +259,9 @@ menyediakan mesin virtual yang gratis selamanya dengan disk permanen dan selalu 
 
 | Gejala | Penyebab & solusi |
 |---|---|
-| Kunjungan pertama lambat (±1 menit) | Normal pada paket Free: layanan sedang bangun dari tidur |
-| Data penyewa/tagihan kembali ke semula | Normal pada paket Free: filesystem *ephemeral*. Lihat bagian "Agar data tidak ter-reset" |
-| Foto laporan kerusakan hilang | Penyebab sama seperti di atas — foto tersimpan di disk |
-| Build gagal pada `better-sqlite3` | Pastikan `NODE_VERSION=22` masih ada di Environment agar memakai binary siap pakai |
-| Deploy tidak jalan setelah push | Periksa **Settings → Build & Deploy**; `autoDeployTrigger: commit` seharusnya aktif |
-| Blueprint tidak terbaca | `render.yaml` harus berada di akar repositori pada branch yang dipilih Render |
-
-Log lengkap tersedia di **Render Dashboard → layanan `komen` → Logs**.
+| Kunjungan pertama lambat | Normal pada paket gratis: layanan sedang bangun dari tidur |
+| Data penyewa/tagihan kembali ke semula | Penyimpanan tidak permanen pada paket gratis. Pakai cara A atau D |
+| Foto laporan kerusakan hilang | Penyebab sama — foto tersimpan di disk |
+| URL `trycloudflare.com` tidak bisa dibuka | Proses `cloudflared` atau `npm start` sudah berhenti; jalankan ulang keduanya |
+| Build gagal pada `better-sqlite3` | Pakai Node 20+ (`NODE_VERSION=22` pada Render; `Dockerfile` sudah memakai `node:22-slim`) |
+| Halaman login muncul terus setelah login | Cookie sesi butuh HTTPS saat `NODE_ENV=production`. Semua cara di atas sudah memakai HTTPS |

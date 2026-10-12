@@ -1,0 +1,22 @@
+# Jangan ikutkan dependensi hasil install lokal — image menginstall sendiri.
+node_modules
+
+# Database & berkas unggahan milik lingkungan lokal.
+data
+uploads
+*.db
+*.db-wal
+*.db-shm
+
+# Rahasia lokal.
+.env
+
+# Berkas pengembangan yang tidak dibutuhkan di produksi.
+tests
+.git
+.gitignore
+.kiro
+README.md
+DEPLOY.md
+render.yaml
+*.log
